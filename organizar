@@ -1,0 +1,3 @@
+import numpy as np
+a = np.array([34, 5, 89, 23, 76])
+print(np.sort(a))
