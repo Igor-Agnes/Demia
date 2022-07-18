@@ -1,0 +1,21 @@
+import time
+2
+from plyer import notification
+3
+​
+4
+if __name__ == "__main__":
+5
+    while True:
+6
+        notification.notify(
+7
+            title = "ALERT!!!",
+8
+            message = "Take a break! It has been an hour!",
+9
+            timeout = 10
+10
+        )
+11
+        time.sleep(3600)
