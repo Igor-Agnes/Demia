@@ -1,0 +1,165 @@
+index.html
+
+1
+<!DOCTYPE html>
+2
+<html>
+3
+<head>
+4
+    <meta charset="utf-8">
+5
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+6
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+7
+    <link rel="stylesheet" href="/static/style.css">
+8
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+9
+</head>
+10
+<body>
+11
+    <h1 class="jumbotron text-center">AI Chatbot with Python</h1>
+12
+<div class="container">
+13
+    <div class="row">
+14
+        <div class="col-sm-6 offset-sm-3">
+15
+            <div id="chatbox" class="border border-success">
+16
+                <p class="botText"><span>Hi! I'm Chatterbot</span></p>
+17
+            </div>
+18
+            <div id="userInput">
+19
+                <input id="textInput" class="form-control" type="text" name="msg" placeholder="Type Your Message Here">
+20
+                <input id="buttonInput" class="btn btn-success form-control" type="submit" value="Send">
+21
+            </div>
+22
+        </div>
+23
+    </div>
+24
+​
+25
+<script>
+26
+    function getResponse() {
+27
+        let userText = $("#textInput").val();
+28
+        let userHtml = '<p class="userText"><span>' + userText + '</span></p>';
+29
+        $("#textInput").val("");
+30
+        $("#chatbox").append(userHtml);
+31
+        document.getElementById('userInput').scrollIntoView({block: 'start', behavior: 'smooth'});
+32
+        $.get("/get", { msg: userText }).done(function(data) {
+33
+        var botHtml = '<p class="botText"><span>' + data + '</span></p>';
+34
+        $("#chatbox").append(botHtml);
+35
+        document.getElementById('userInput').scrollIntoView({block: 'start', behavior: 'smooth'});
+36
+});
+37
+}
+38
+    $("#textInput").keypress(function(e) {
+39
+    //if enter key is pressed
+40
+        if(e.which == 13) {
+41
+            getResponse();
+42
+        }
+43
+    });
+44
+    $("#buttonInput").click(function() {
+45
+        getResponse();
+46
+    });
+47
+    </script>
+48
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+49
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+50
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+51
+</div>
+52
+</body>
+53
+</html>
+
+
+#textInput {
+    border: none;
+    border-bottom: 3px solid aqua;
+}
+
+.userText {
+    color: white;
+    font-family: monospace;
+    font-size: 17px;
+    text-align: right;
+    line-height: 30px;
+}
+.userText span {
+    background-color: #009688;
+    padding: 10px;
+    border-radius: 2px;
+}
+.botText {
+    color: white;
+    font-family: monospace;
+    font-size: 17px;
+    text-align: left;
+    line-height: 30px;
+}
+.botText span {
+    background-color: #EF5350;
+    padding: 10px;
+    border-radius: 2px;
+}
+
+
+#imports
+from flask import Flask, render_template, request
+from chatterbot import ChatBot
+from chatterbot.trainers import ChatterBotCorpusTrainer
+
+app = Flask(__name__)
+#create chatbot
+englishBot = ChatBot("Chatterbot", storage_adapter="chatterbot.storage.SQLStorageAdapter")
+trainer = ChatterBotCorpusTrainer(englishBot)
+trainer.train("chatterbot.corpus.english") #train the chatter bot for english
+
+#define app routes
+@app.route("/")
+def index():
+    return render_template("index.html")
+
+@app.route("/get")
+#function for the bot response
+def get_bot_response():
+    userText = request.args.get('msg')
+    return str(englishBot.get_response(userText))
+
+if __name__ == "__main__":
+    app.run()
